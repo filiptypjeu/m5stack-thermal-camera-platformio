@@ -42,6 +42,9 @@ void ThermalHelper::begin() {
     this->m_x1 = this->m_marginHorizontal - SPACE_BETWEEN_COLUMNS - this->m_columnWidth;
     this->m_x2 = w - this->m_marginHorizontal + SPACE_BETWEEN_COLUMNS;
 
+    this->m_cursorCoord[0] = this->m_marginHorizontal + this->m_pixelSize*INTERPOLATED_COLS/2 + this->m_pixelSize/2;
+    this->m_cursorCoord[1] = this->m_marginVertical + this->m_pixelSize*INTERPOLATED_ROWS/2 + this->m_pixelSize/2;
+
     this->drawGradient();
     this->drawGradientTemperatures();
     this->drawStaticInfo();
@@ -65,7 +68,7 @@ void ThermalHelper::update() {
 
     // Draw cursor in the middle
     if (this->m_flagCursor) {
-        drawCursor(this->m_marginHorizontal + this->m_pixelSize*INTERPOLATED_COLS/2 + this->m_pixelSize/2, this->m_marginVertical + this->m_pixelSize*INTERPOLATED_ROWS/2 + this->m_pixelSize/2, this->m_fontHeight);
+        drawCursor(this->m_cursorCoord[0], this->m_cursorCoord[1], this->m_fontHeight);
     }
 }
 

@@ -120,6 +120,7 @@ class ThermalHelper {
         int16_t m_x2{}; // X-coordinate for the left edge of content in right column
         int16_t m_fontHeight{}; // Height of the font used
         int16_t m_columnWidth{}; // Width of the left and right columns
+        int16_t m_cursorCoord[2] = {};
 
         // Flags
         bool m_flagAuto = false;
