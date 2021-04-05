@@ -106,20 +106,20 @@ class ThermalHelper {
         float m_ipx[IPXS];
 
         // Temperatures
-        int16_t m_minTemp = 20;
-        int16_t m_maxTemp = 32;
-        int16_t m_minimum{};
-        int16_t m_maximum{};
+        int16_t m_gradientMin = 20;
+        int16_t m_gradientMax = 32;
+        int16_t m_globalMin{};
+        int16_t m_globalMax{};
         int16_t m_cursorTemp{};
 
         // Variables for layout
-        int16_t m_pixelSize{};
-        int16_t m_pixelsX{};
-        int16_t m_pixelsY{};
-        int16_t m_x1{};
-        int16_t m_x2{};
-        int16_t m_fontHeight{};
-        int16_t m_gradientWidth{};
+        int16_t m_pixelSize{}; // Interpolated pixel width and height in screen pixels
+        int16_t m_marginHorizontal{}; // Horizontal space between left/right edges and image box
+        int16_t m_marginVertical{}; // Vertical space between top/bottom edges and image box
+        int16_t m_x1{}; // X-coordinate for the left edge of content in left column
+        int16_t m_x2{}; // X-coordinate for the left edge of content in right column
+        int16_t m_fontHeight{}; // Height of the font used
+        int16_t m_columnWidth{}; // Width of the left and right columns
 
         // Flags
         bool m_flagAuto = false;

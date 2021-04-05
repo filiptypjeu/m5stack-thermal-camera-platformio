@@ -23,23 +23,24 @@ void ThermalHelper::begin() {
 
     M5.Lcd.setTextColor(TFT_WHITE);
 
+    // Width of the left and right columns is basically set to the width of 3 letters
+    this->m_columnWidth = M5.Lcd.textWidth("32C");
     this->m_fontHeight = M5.Lcd.fontHeight(); 
-    this->m_gradientWidth = M5.Lcd.textWidth("32C");
 
     auto w = M5.Lcd.width();
     auto h = M5.Lcd.height();
 
-    // Every pixel drawn will be a sqaure.
-    // Need to calculate the the size of a pixel in both directions, while also leaving room for the gradient.
-    auto px_w = (w - 2*this->m_gradientWidth - 2*SPACE)/INTERPOLATED_COLS;
+    // Every interpolated pixel will be drawn as a sqaure.
+    // Need to calculate the the size of an interpolated pixel in both directions, while also leaving room for the left and right columns.
+    auto px_w = (w - 2*this->m_columnWidth - 2*SPACE_BETWEEN_COLUMNS)/INTERPOLATED_COLS;
     auto px_h = h/INTERPOLATED_ROWS;
     this->m_pixelSize = min(px_w, px_h);
 
-    this->m_pixelsX = (w - this->m_pixelSize*INTERPOLATED_COLS) / 2;
-    this->m_pixelsY = (h - this->m_pixelSize*INTERPOLATED_ROWS) / 2;
+    this->m_marginHorizontal = (w - this->m_pixelSize*INTERPOLATED_COLS) / 2;
+    this->m_marginVertical = (h - this->m_pixelSize*INTERPOLATED_ROWS) / 2;
 
-    this->m_x1 = this->m_pixelsX - SPACE - this->m_gradientWidth;
-    this->m_x2 = w - this->m_pixelsX + SPACE;
+    this->m_x1 = this->m_marginHorizontal - SPACE_BETWEEN_COLUMNS - this->m_columnWidth;
+    this->m_x2 = w - this->m_marginHorizontal + SPACE_BETWEEN_COLUMNS;
 
     this->drawGradient();
     this->drawGradientTemperatures();
@@ -64,7 +65,7 @@ void ThermalHelper::update() {
 
     // Draw cursor in the middle
     if (this->m_flagCursor) {
-        drawCursor(this->m_pixelsX + this->m_pixelSize*INTERPOLATED_COLS/2 + this->m_pixelSize/2, this->m_pixelsY + this->m_pixelSize*INTERPOLATED_ROWS/2 + this->m_pixelSize/2, this->m_fontHeight);
+        drawCursor(this->m_marginHorizontal + this->m_pixelSize*INTERPOLATED_COLS/2 + this->m_pixelSize/2, this->m_marginVertical + this->m_pixelSize*INTERPOLATED_ROWS/2 + this->m_pixelSize/2, this->m_fontHeight);
     }
 }
 
@@ -72,7 +73,7 @@ void ThermalHelper::update() {
 
 void ThermalHelper::handleButtons() {
     if (M5.BtnA.wasPressed()) {
-        this->m_minTemp = this->m_cursorTemp;
+        this->m_gradientMin = this->m_cursorTemp;
         this->drawGradientTemperatures();
     }
 
@@ -82,7 +83,7 @@ void ThermalHelper::handleButtons() {
     }
 
     if (M5.BtnC.wasPressed()) {
-        this->m_maxTemp = this->m_cursorTemp;
+        this->m_gradientMax = this->m_cursorTemp;
         this->drawGradientTemperatures();
     }
 }
@@ -99,13 +100,13 @@ void ThermalHelper::drawPixels() {
             // Get the pixel temperature
             t = static_cast<int16_t>(p[y * c + x]);
             // Constrain the temperature to the current min-max-interval
-            t = constrain(t, this->m_minTemp, this->m_maxTemp);
+            t = constrain(t, this->m_gradientMin, this->m_gradientMax);
 
             // Map the temperature to a color index
-            uint8_t i = map(t, this->m_minTemp, this->m_maxTemp, 0, THERMAL_GRADIENT_N - 1);
+            uint8_t i = map(t, this->m_gradientMin, this->m_gradientMax, 0, THERMAL_GRADIENT_N - 1);
 
             // Draw the pixel
-            M5.Lcd.fillRect(this->m_pixelsX + size * x, this->m_pixelsY + size * y, size, size, colorGradient[i]);
+            M5.Lcd.fillRect(this->m_marginHorizontal + size * x, this->m_marginVertical + size * y, size, size, colorGradient[i]);
         }
     }
 }
@@ -118,7 +119,7 @@ void ThermalHelper::drawStaticInfo() {
     M5.Lcd.print("Min");
 
     // Draw cursor
-    drawCursor(this->m_x2 + this->m_gradientWidth/2, 6.5*this->m_fontHeight - SPACE, this->m_fontHeight);
+    drawCursor(this->m_x2 + this->m_columnWidth/2, 6.5*this->m_fontHeight - SPACE_BETWEEN_COLUMNS, this->m_fontHeight);
 }
 
 void ThermalHelper::drawGradient() {
@@ -127,13 +128,13 @@ void ThermalHelper::drawGradient() {
     // Bottom y-position of gradient
     auto b = M5.Lcd.height() - this->m_fontHeight;
     // Left x-position of gradient
-    auto x = this->m_pixelsX - SPACE - this->m_gradientWidth;
+    auto x = this->m_marginHorizontal - SPACE_BETWEEN_COLUMNS - this->m_columnWidth;
 
     // The gradient is drawn as individual lines with differnet colors
     for (auto y = a; y < b; y++) {
         // Map the current y-position to a color index, inverted
         uint8_t i = THERMAL_GRADIENT_N - map(y, a, b - 1, 1, THERMAL_GRADIENT_N);
-        M5.Lcd.drawLine(x, y, x + this->m_gradientWidth, y, colorGradient[i]);
+        M5.Lcd.drawLine(x, y, x + this->m_columnWidth, y, colorGradient[i]);
         Serial.printf("Y = %d, i = %d\n", y, i);
     }
 }
@@ -141,14 +142,14 @@ void ThermalHelper::drawGradient() {
 void ThermalHelper::drawGradientTemperatures() {
     auto h = M5.Lcd.height();
 
-    M5.Lcd.fillRect(this->m_x1, 0, this->m_gradientWidth, this->m_fontHeight, TFT_BLACK);
+    M5.Lcd.fillRect(this->m_x1, 0, this->m_columnWidth, this->m_fontHeight, TFT_BLACK);
     M5.Lcd.setCursor(this->m_x1, 0);
-    M5.Lcd.print(this->m_maxTemp);
+    M5.Lcd.print(this->m_gradientMax);
     M5.Lcd.print("C");
 
-    M5.Lcd.fillRect(this->m_x1, h - this->m_fontHeight, this->m_gradientWidth, this->m_fontHeight, TFT_BLACK);
+    M5.Lcd.fillRect(this->m_x1, h - this->m_fontHeight, this->m_columnWidth, this->m_fontHeight, TFT_BLACK);
     M5.Lcd.setCursor(this->m_x1, h - this->m_fontHeight);
-    M5.Lcd.print(this->m_minTemp);
+    M5.Lcd.print(this->m_gradientMin);
     M5.Lcd.print("C");
 }
 
@@ -179,20 +180,20 @@ void ThermalHelper::updateTemperatures() {
         }
     }
 
-    this->m_maximum = static_cast<int16_t>(MAX);
-    this->m_minimum = static_cast<int16_t>(MIN);
+    this->m_globalMax = static_cast<int16_t>(MAX);
+    this->m_globalMin = static_cast<int16_t>(MIN);
     this->m_cursorTemp = static_cast<int16_t>(this->m_ipx[INTERPOLATED_ROWS/2 + INTERPOLATED_COLS/2]);
 
     auto w = M5.Lcd.width();
 
     M5.Lcd.fillRect(this->m_x2, this->m_fontHeight, w, this->m_fontHeight, TFT_BLACK);
     M5.Lcd.setCursor(this->m_x2, this->m_fontHeight);
-    M5.Lcd.print(this->m_maximum);
+    M5.Lcd.print(this->m_globalMax);
     M5.Lcd.print("C");
 
     M5.Lcd.fillRect(this->m_x2, 4*this->m_fontHeight, w, this->m_fontHeight, TFT_BLACK);
     M5.Lcd.setCursor(this->m_x2, 4*this->m_fontHeight);
-    M5.Lcd.print(this->m_minimum);
+    M5.Lcd.print(this->m_globalMin);
     M5.Lcd.print("C");
 
     M5.Lcd.fillRect(this->m_x2, 7*this->m_fontHeight, w, this->m_fontHeight, TFT_BLACK);
@@ -200,23 +201,24 @@ void ThermalHelper::updateTemperatures() {
     M5.Lcd.print(this->m_cursorTemp);
     M5.Lcd.print("C");
 
+    // If gradient temperatures are static
     if (!this->m_flagAuto) {
         return;
     }
 
-    this->m_maxTemp = this->m_maximum;
-    this->m_minTemp = this->m_minimum;
+    this->m_gradientMax = this->m_globalMax;
+    this->m_gradientMin = this->m_globalMin;
     this->drawGradientTemperatures();
 }
 
 void ThermalHelper::setAuto(const bool flag) {
     this->m_flagAuto = flag;
 
-    M5.Lcd.setCursor(M5.Lcd.width() - this->m_pixelsX + SPACE + 0.4*this->m_gradientWidth, M5.Lcd.height() - this->m_fontHeight);
+    M5.Lcd.setCursor(M5.Lcd.width() - this->m_marginHorizontal + SPACE_BETWEEN_COLUMNS + 0.4*this->m_columnWidth, M5.Lcd.height() - this->m_fontHeight);
 
     if (!flag) {
-        this->m_minTemp = 20;
-        this->m_maxTemp = 32;
+        this->m_gradientMin = 20;
+        this->m_gradientMax = 32;
         M5.Lcd.setTextColor(TFT_DARKGREY);
     }
 
