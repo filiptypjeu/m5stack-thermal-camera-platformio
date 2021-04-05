@@ -197,9 +197,11 @@ void ThermalHelper::updateTemperatures() {
     M5.Lcd.print("C");
 
     M5.Lcd.fillRect(this->m_x2, 7*this->m_fontHeight, w, this->m_fontHeight, TFT_BLACK);
-    M5.Lcd.setCursor(this->m_x2, 7*this->m_fontHeight);
-    M5.Lcd.print(this->m_cursorTemp);
-    M5.Lcd.print("C");
+    if (this->m_flagCursor) {
+        M5.Lcd.setCursor(this->m_x2, 7*this->m_fontHeight);
+        M5.Lcd.print(this->m_cursorTemp);
+        M5.Lcd.print("C");
+    }
 
     // If gradient temperatures are static
     if (!this->m_flagAuto) {
