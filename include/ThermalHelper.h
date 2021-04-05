@@ -64,6 +64,11 @@ class ThermalHelper {
         void drawPixels();
 
         /**
+         * Highlight global minimum and maximum interpolated pixels.
+         */
+        void drawPixelHighlights();
+
+        /**
          * Draw everything that should never change after the first frame.
          */
         void drawStaticInfo();
@@ -115,6 +120,8 @@ class ThermalHelper {
         int16_t m_gradientMax = 32;
         int16_t m_globalMin{};
         int16_t m_globalMax{};
+        int16_t m_globalMinIndex{};
+        int16_t m_globalMaxIndex{};
         int16_t m_cursorTemp{};
 
         // Variables for layout

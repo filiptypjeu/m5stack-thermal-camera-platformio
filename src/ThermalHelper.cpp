@@ -115,6 +115,15 @@ void ThermalHelper::drawPixels() {
     }
 }
 
+void ThermalHelper::drawPixelHighlights() {
+    int16_t xyxy[4] = {};
+    this->interpolatedPixelIndexToCoordinates(this->m_globalMinIndex, xyxy);
+    this->interpolatedPixelIndexToCoordinates(this->m_globalMaxIndex, xyxy + 2);
+
+    M5.Lcd.drawRect(xyxy[0], xyxy[1], this->m_pixelSize, this->m_pixelSize, TFT_BLACK);
+    M5.Lcd.drawRect(xyxy[2], xyxy[3], this->m_pixelSize, this->m_pixelSize, TFT_WHITE);
+}
+
 void ThermalHelper::drawStaticInfo() {
     M5.Lcd.setCursor(this->m_x2, 0);
     M5.Lcd.print("Max");
@@ -167,20 +176,18 @@ void ThermalHelper::updateTemperatures() {
     float MIN = INT_MAX;
     float MAX = INT_MIN;
     float t{};
-    uint16_t r = AMG_ROWS;
-    uint16_t c = AMG_COLS;
     float *p = this->m_px;
 
-    for (auto y = 0; y < r; y++) {
-        for (auto x = 0; x < c; x++) {
-            // Get the pixel temperature
-            t = p[y * c + x];
+    for (auto i = 0; i < PXS; i++) {
+        // Get the pixel temperature
+        t = p[i];
 
-            if (t > MAX) {
-                MAX = t;
-            } else if (t < MIN) {
-                MIN = t;
-            }
+        if (t > MAX) {
+            MAX = t;
+            this->m_globalMaxIndex = i;
+        } else if (t < MIN) {
+            MIN = t;
+            this->m_globalMinIndex = i;
         }
     }
 
