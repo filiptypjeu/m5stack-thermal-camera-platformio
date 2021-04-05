@@ -154,6 +154,6 @@ class ThermalHelper {
         // Flags
         bool m_flagAuto = false; // Update min/max gradient temperatures automatically
         bool m_flagCursor = true; // Draw cursor
-        bool m_flagMinMax = true; // Draw global minimum and maximum
+        bool m_flagHighlights = true; // Draw global minimum and maximum highlights
         bool m_flagUpdate = true; // Update camera view, or pause
 };

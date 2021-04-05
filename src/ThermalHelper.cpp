@@ -70,7 +70,7 @@ void ThermalHelper::update() {
     this->drawPixels();
 
     // Draw min and max pixel highlights
-    if (this->m_flagMinMax) {
+    if (this->m_flagHighlights) {
         drawPixelHighlights();
     }
 
