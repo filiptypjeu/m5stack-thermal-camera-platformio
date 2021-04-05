@@ -204,16 +204,19 @@ void ThermalHelper::updateTemperatures() {
 
     auto w = M5.Lcd.width();
 
+    // Write global maximum temperature
     M5.Lcd.fillRect(this->m_x2, this->m_fontHeight, w, this->m_fontHeight, TFT_BLACK);
     M5.Lcd.setCursor(this->m_x2, this->m_fontHeight);
     M5.Lcd.print(this->m_globalMax);
     M5.Lcd.print("C");
 
+    // Write global minimum temperature
     M5.Lcd.fillRect(this->m_x2, 4*this->m_fontHeight, w, this->m_fontHeight, TFT_BLACK);
     M5.Lcd.setCursor(this->m_x2, 4*this->m_fontHeight);
     M5.Lcd.print(this->m_globalMin);
     M5.Lcd.print("C");
 
+    // Write cursor temperature
     M5.Lcd.fillRect(this->m_x2, 7*this->m_fontHeight, w, this->m_fontHeight, TFT_BLACK);
     if (this->m_flagCursor) {
         M5.Lcd.setCursor(this->m_x2, 7*this->m_fontHeight);
@@ -239,19 +242,20 @@ void ThermalHelper::interpolatedPixelIndexToCoordinates(uint16_t index, int16_t 
 void ThermalHelper::setAuto(const bool flag) {
     this->m_flagAuto = flag;
 
-    M5.Lcd.setCursor(M5.Lcd.width() - this->m_marginHorizontal + SPACE_BETWEEN_COLUMNS + 0.4*this->m_columnWidth, M5.Lcd.height() - this->m_fontHeight);
+    M5.Lcd.setCursor(this->m_x2 + 0.4*this->m_columnWidth, M5.Lcd.height() - this->m_fontHeight);
 
-    if (!flag) {
-        this->m_gradientMin = 20;
-        this->m_gradientMax = 32;
+    // If true, store the current gradient temperatures until auto is switched off again
+    if (flag) {
+        this->m_gradientMinBackup = this->m_gradientMin;
+        this->m_gradientMaxBackup = this->m_gradientMax;
+    } else {
+        this->m_gradientMin = this->m_gradientMinBackup;
+        this->m_gradientMax = this->m_gradientMaxBackup;
         M5.Lcd.setTextColor(TFT_DARKGREY);
     }
 
     M5.Lcd.print("A");
     M5.Lcd.setTextColor(TFT_WHITE);
-    if (flag == this->m_flagAuto) {
-        return;
-    }
 }
 
 void ThermalHelper::toggleAuto() {

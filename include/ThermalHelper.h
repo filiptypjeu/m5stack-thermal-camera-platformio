@@ -59,7 +59,7 @@ class ThermalHelper {
         void handleButtons();
 
         /**
-         * Draw the pixels of a new frame.
+         * Draw the interpolated pixels of a new frame.
          */
         void drawPixels();
 
@@ -108,6 +108,11 @@ class ThermalHelper {
          */
         void toggleAuto();
 
+        /**
+         * Toggle mode.
+         */
+        void toggleMode();
+
 
         // Array for AMG pixels
         float m_px[PXS];
@@ -116,8 +121,10 @@ class ThermalHelper {
         float m_ipx[IPXS];
 
         // Temperatures
-        int16_t m_gradientMin = 20;
-        int16_t m_gradientMax = 32;
+        int16_t m_gradientMin = DEFAULT_MIN_TEMPERATURE;
+        int16_t m_gradientMax = DEFAULT_MAX_TEMPERATURE;
+        int16_t m_gradientMinBackup{};
+        int16_t m_gradientMaxBackup{};
         int16_t m_globalMin{};
         int16_t m_globalMax{};
         int16_t m_globalMinIndex{};
@@ -133,6 +140,16 @@ class ThermalHelper {
         int16_t m_fontHeight{}; // Height of the font used
         int16_t m_columnWidth{}; // Width of the left and right columns
         int16_t m_cursorCoord[2] = {};
+
+        /**
+         * Modes:
+         *   0 = Pause
+         *   1 = ON/OFF Draw cursor and highlights
+         *   2 = ON/OFF automatic gradient temperatures
+         *   3 = Indrease/decrease gradient max temperature
+         *   4 = Indrease/decrease gradient min temperature
+         */
+        uint8_t m_currentMode = 0;
 
         // Flags
         bool m_flagAuto = false; // Update min/max gradient temperatures automatically
