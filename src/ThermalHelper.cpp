@@ -182,7 +182,7 @@ void ThermalHelper::updateTemperatures() {
 
     this->m_globalMax = static_cast<int16_t>(MAX);
     this->m_globalMin = static_cast<int16_t>(MIN);
-    this->m_cursorTemp = static_cast<int16_t>(this->m_ipx[INTERPOLATED_ROWS/2 + INTERPOLATED_COLS/2]);
+    this->m_cursorTemp = static_cast<int16_t>(this->m_ipx[INTERPOLATED_ROWS*INTERPOLATED_COLS/2 + INTERPOLATED_COLS/2]);
 
     auto w = M5.Lcd.width();
 
