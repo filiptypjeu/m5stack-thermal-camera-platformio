@@ -206,7 +206,7 @@ void ThermalHelper::updateTemperatures() {
         return;
     }
 
-    this->m_gradientMax = this->m_globalMax;
+    this->m_gradientMax = max(this->m_globalMax, static_cast<int16_t>(this->m_globalMin + SHORTEST_AUTO_TEMPERATURE_INTERVAL));
     this->m_gradientMin = this->m_globalMin;
     this->drawGradientTemperatures();
 }
