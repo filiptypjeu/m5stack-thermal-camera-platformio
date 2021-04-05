@@ -55,17 +55,24 @@ void ThermalHelper::begin() {
 void ThermalHelper::update() {
     this->handleButtons();
 
-    // Read pixel values
-    amg.readPixels(this->m_px);
+    if (this->m_flagUpdate) {
+        // Read pixel values
+        amg.readPixels(this->m_px);
+
+        // Interpolate pixel values
+        Interpolation::interpolate_image(this->m_px, AMG_ROWS, AMG_COLS, this->m_ipx, INTERPOLATED_ROWS, INTERPOLATED_COLS);
+    }
 
     // Update min and max temperatures
     this->updateTemperatures();
 
-    // Interpolate pixel values
-    Interpolation::interpolate_image(this->m_px, AMG_ROWS, AMG_COLS, this->m_ipx, INTERPOLATED_ROWS, INTERPOLATED_COLS);
-
     // Draw all pixels
     this->drawPixels();
+
+    // Draw min and max pixel highlights
+    if (this->m_flagMinMax) {
+        drawPixelHighlights();
+    }
 
     // Draw cursor in the middle
     if (this->m_flagCursor) {
