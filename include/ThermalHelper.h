@@ -89,6 +89,11 @@ class ThermalHelper {
         void updateTemperatures();
 
         /**
+         * Calculated the screen coordinates of a certain interpolated pixel. Top left pixel is given.
+         */
+        void interpolatedPixelIndexToCoordinates(uint16_t index, int16_t *xy);
+
+        /**
          * Set automatic threshold true/false.
          */
         void setAuto(const bool flag);

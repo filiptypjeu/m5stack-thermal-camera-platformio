@@ -42,8 +42,9 @@ void ThermalHelper::begin() {
     this->m_x1 = this->m_marginHorizontal - SPACE_BETWEEN_COLUMNS - this->m_columnWidth;
     this->m_x2 = w - this->m_marginHorizontal + SPACE_BETWEEN_COLUMNS;
 
-    this->m_cursorCoord[0] = this->m_marginHorizontal + this->m_pixelSize*INTERPOLATED_COLS/2 + this->m_pixelSize/2;
-    this->m_cursorCoord[1] = this->m_marginVertical + this->m_pixelSize*INTERPOLATED_ROWS/2 + this->m_pixelSize/2;
+    this->interpolatedPixelIndexToCoordinates(INTERPOLATED_COLS*INTERPOLATED_ROWS/2 + INTERPOLATED_COLS/2, this->m_cursorCoord);
+    this->m_cursorCoord[0] += this->m_pixelSize/2;
+    this->m_cursorCoord[1] += this->m_pixelSize/2;
 
     this->drawGradient();
     this->drawGradientTemperatures();
@@ -214,6 +215,11 @@ void ThermalHelper::updateTemperatures() {
     this->m_gradientMax = max(this->m_globalMax, static_cast<int16_t>(this->m_globalMin + SHORTEST_AUTO_TEMPERATURE_INTERVAL));
     this->m_gradientMin = this->m_globalMin;
     this->drawGradientTemperatures();
+}
+
+void ThermalHelper::interpolatedPixelIndexToCoordinates(uint16_t index, int16_t *xy) {
+    xy[0] = this->m_marginHorizontal + (index%INTERPOLATED_COLS)*this->m_pixelSize;
+    xy[1] = this->m_marginVertical + (index/INTERPOLATED_COLS)*this->m_pixelSize;
 }
 
 void ThermalHelper::setAuto(const bool flag) {
