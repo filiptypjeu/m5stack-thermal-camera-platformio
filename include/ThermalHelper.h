@@ -144,12 +144,13 @@ class ThermalHelper {
         /**
          * Modes:
          *   0 = Pause
-         *   1 = ON/OFF Draw cursor and highlights
-         *   2 = ON/OFF automatic gradient temperatures
-         *   3 = Indrease/decrease gradient max temperature
-         *   4 = Indrease/decrease gradient min temperature
+         *   1 = ON/OFF automatic gradient temperatures and ON/OFF draw cursor and highlights
+         *   2 = Indrease/decrease gradient max temperature
+         *   3 = Indrease/decrease gradient min temperature
+         *   4 = Set min and max temperatures with cursor
          */
         uint8_t m_currentMode = 0;
+        #define MODE_MAX 4
 
         // Flags
         bool m_flagAuto = false; // Update min/max gradient temperatures automatically

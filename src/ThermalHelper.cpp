@@ -63,7 +63,7 @@ void ThermalHelper::update() {
         Interpolation::interpolate_image(this->m_px, AMG_ROWS, AMG_COLS, this->m_ipx, INTERPOLATED_ROWS, INTERPOLATED_COLS);
     }
 
-    // Update min and max temperatures
+    // Update min, max ans cursor temperatures
     this->updateTemperatures();
 
     // Draw all pixels
@@ -83,19 +83,74 @@ void ThermalHelper::update() {
 // PRIVATE
 
 void ThermalHelper::handleButtons() {
+    // A button: Switch mode
     if (M5.BtnA.wasPressed()) {
-        this->m_gradientMin = this->m_cursorTemp;
-        this->drawGradientTemperatures();
+        this->toggleMode();
     }
 
+    // B button
+    //   0: Pause/unpause
+    //   1: Toggle auto gradient temperatures
+    //   2: Decrease gradient max temperature
+    //   3: Decrease gradient min temperature
+    //   4: Set min temperature with cursor
     if (M5.BtnB.wasPressed()) {
-        this->toggleAuto();
-        this->drawGradientTemperatures();
+        switch (this->m_currentMode) {
+            case 0:
+                this->m_flagUpdate = !this->m_flagUpdate;
+                break;
+
+            case 1:
+                toggleAuto();
+                break;
+
+            case 2:
+                this->m_gradientMax--;
+                break;
+
+            case 3:
+                this->m_gradientMin--;
+                break;
+
+            case 4:
+                if (this->m_flagCursor) {
+                    this->m_gradientMin = this->m_cursorTemp;
+                }
+                break;
+        }
     }
 
+    // C button
+    //   0: Pause/unpause
+    //   1: Toggle cursor and highlights
+    //   2: Increase gradient max temperature
+    //   3: Increase gradient min temperature
+    //   4: Set max temperature with cursor
     if (M5.BtnC.wasPressed()) {
-        this->m_gradientMax = this->m_cursorTemp;
-        this->drawGradientTemperatures();
+        switch (this->m_currentMode) {
+            case 0:
+                this->m_flagUpdate = !this->m_flagUpdate;
+                break;
+
+            case 1:
+                this->m_flagCursor = !this->m_flagCursor;
+                this->m_flagHighlights = !this->m_flagHighlights;
+                break;
+
+            case 2:
+                this->m_gradientMax++;
+                break;
+
+            case 3:
+                this->m_gradientMin++;
+                break;
+
+            case 4:
+                if (this->m_flagCursor) {
+                    this->m_gradientMax = this->m_cursorTemp;
+                }
+                break;
+        }
     }
 }
 
@@ -260,4 +315,19 @@ void ThermalHelper::setAuto(const bool flag) {
 
 void ThermalHelper::toggleAuto() {
     this->setAuto(!this->m_flagAuto);
+}
+
+void ThermalHelper::toggleMode() {
+    this->m_currentMode += 1;
+
+    // Restart mode counter
+    if (this->m_currentMode > MODE_MAX) {
+        this->m_currentMode = 0;
+
+    // If auto is enabled, only mode 0 and 1 is allowed
+    } else if (this->m_flagAuto && this->m_currentMode > 1) {
+        this->m_currentMode = 0;
+    }
+
+    // XXX: Draw something?
 }
