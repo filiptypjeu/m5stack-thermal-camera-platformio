@@ -106,15 +106,18 @@ void ThermalHelper::handleButtons() {
 
             case 2:
                 this->m_gradientMax--;
+                this->drawGradientTemperatures();
                 break;
 
             case 3:
                 this->m_gradientMin--;
+                this->drawGradientTemperatures();
                 break;
 
             case 4:
                 if (this->m_flagCursor) {
                     this->m_gradientMin = this->m_cursorTemp;
+                    this->drawGradientTemperatures();
                 }
                 break;
         }
@@ -139,15 +142,18 @@ void ThermalHelper::handleButtons() {
 
             case 2:
                 this->m_gradientMax++;
+                this->drawGradientTemperatures();
                 break;
 
             case 3:
                 this->m_gradientMin++;
+                this->drawGradientTemperatures();
                 break;
 
             case 4:
                 if (this->m_flagCursor) {
                     this->m_gradientMax = this->m_cursorTemp;
+                    this->drawGradientTemperatures();
                 }
                 break;
         }
